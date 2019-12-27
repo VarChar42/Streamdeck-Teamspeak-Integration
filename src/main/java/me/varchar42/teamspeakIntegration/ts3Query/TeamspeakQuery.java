@@ -23,10 +23,8 @@ public class TeamspeakQuery {
             socket = new Socket("localhost", 25639);
             socket.setKeepAlive(true);
 
-
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
-
 
             readerThread = new Thread(this::read);
             readerThread.start();
@@ -60,7 +58,6 @@ public class TeamspeakQuery {
 
                 msg = in.readLine();
 
-
                 if(msg == null) break;
                 msg = msg.trim();
                 if(msg.startsWith("error")) {
@@ -75,7 +72,6 @@ public class TeamspeakQuery {
                     data.put(keyV[0], Integer.parseInt(keyV[1]));
                     System.out.println(keyV[0]+ ": "+keyV[1]);
                 }
-
 
             }
         } catch (Exception e) {

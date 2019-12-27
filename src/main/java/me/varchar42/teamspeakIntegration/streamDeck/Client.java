@@ -24,7 +24,6 @@ public class Client extends WebSocketClient {
         queryThread = new Thread(query::connect);
         queryThread.start();
 
-
         parser = new JSONParser();
 
     }
@@ -45,15 +44,11 @@ public class Client extends WebSocketClient {
                 String action = msg.get("action").toString();
                 String event = msg.get("event").toString();
 
-                if (action.equals("me.varchar42.streamdeck.teamspeakIntegration.Test") && event.equals("keyDown")) {
-                    System.out.println("Pressed");
+                if (action.equals("me.varchar42.streamdeck.teamspeakIntegration.toggleMute") && event.equals("keyDown")) {
+                    System.out.println("Pressed: "+action);
                     System.out.println(query.mute() ? "OK":"ERROR");
                 }
-
-
             }
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -61,6 +56,7 @@ public class Client extends WebSocketClient {
 
     @Override
     public void onClose(int i, String s, boolean b) {
+        System.exit(0);
 
     }
 

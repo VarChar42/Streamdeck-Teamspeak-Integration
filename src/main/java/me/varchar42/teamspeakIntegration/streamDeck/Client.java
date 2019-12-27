@@ -14,12 +14,17 @@ public class Client extends WebSocketClient {
     String uuid;
     JSONParser parser;
     TeamspeakQuery query;
+    Thread queryThread;
 
     public Client(URI serverUri, String uuid) {
         super(serverUri);
         this.uuid = uuid;
+
         query = new TeamspeakQuery();
-        query.connect();
+        queryThread = new Thread(query::connect);
+        queryThread.start();
+
+
         parser = new JSONParser();
 
     }
@@ -40,12 +45,15 @@ public class Client extends WebSocketClient {
                 String action = msg.get("action").toString();
                 String event = msg.get("event").toString();
 
-                if (action.equals("me.varchar42.streamdeck.teamspeakIntegration.Test") && event.equals("keyDown")) query.mute();
+                if (action.equals("me.varchar42.streamdeck.teamspeakIntegration.Test") && event.equals("keyDown")) {
+                    System.out.println("Pressed");
+                    System.out.println(query.mute() ? "OK":"ERROR");
+                }
 
-                System.out.println("Aktion: " + action);
+
             }
 
-            System.out.println(s);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

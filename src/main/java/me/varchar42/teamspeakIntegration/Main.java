@@ -2,8 +2,13 @@ package me.varchar42.teamspeakIntegration;
 
 import me.varchar42.teamspeakIntegration.streamDeck.Client;
 
+
+
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 public class Main {
 
@@ -11,7 +16,7 @@ public class Main {
 
     public static void main(String[] args) throws InterruptedException, URISyntaxException {
         //if(args.length != 8) return;
-
+        Logger.getGlobal().setLevel(Level.OFF);
         System.out.println(String.join(" ", args));
 
         System.out.println("Init");
@@ -21,6 +26,7 @@ public class Main {
         URI uri = new URI( "ws://localhost:"+port);
 
         Client client = new Client(uri, uuid);
+        
         client.connect();
 
         System.out.println("END");

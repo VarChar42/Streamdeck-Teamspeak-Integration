@@ -1,7 +1,9 @@
 package me.varchar42.teamspeakIntegration.ts3Query;
 
 import java.io.*;
+import java.net.ConnectException;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.Buffer;
 import java.util.HashMap;
 
@@ -17,8 +19,11 @@ public class TeamspeakQuery {
 
     public void connect() {
         try {
+            System.out.println("Connecting..");
             socket = new Socket("localhost", 25639);
             socket.setKeepAlive(true);
+
+
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
 
@@ -29,14 +34,21 @@ public class TeamspeakQuery {
             out.println("auth apikey="+apiKey);
 
             out.println("whoami");
+            out.println("use");
 
+        } catch (ConnectException e) {
 
-
-
-
+            System.out.println("Reconnecting to Teamspeak");
+            try {
+                Thread.sleep(1000);
+                connect();
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     private HashMap<String, Integer> data = new HashMap<String, Integer>();
@@ -44,7 +56,13 @@ public class TeamspeakQuery {
     private void read() {
         try {
             while (socket.isConnected()) {
-                String msg = in.readLine().trim();
+                String msg = null;
+
+                msg = in.readLine();
+
+
+                if(msg == null) break;
+                msg = msg.trim();
                 if(msg.startsWith("error")) {
                     System.out.println(msg);
                     continue;
@@ -63,20 +81,37 @@ public class TeamspeakQuery {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        try {
+            System.out.println("Trying to reconnect...");
+            socket.close();
+            in.close();
+            out.close();
+            Thread.sleep(1000);
+
+            connect();
+        } catch (InterruptedException | IOException ex) {
+            ex.printStackTrace();
+        }
+
     }
 
     private boolean muted = false;
 
-    public void mute() {
+    public boolean mute() {
         if(muted) muted = false;
         else muted = true;
 
-        mute(muted);
+        return mute(muted);
 
     }
 
-    public void mute(boolean muted) {
+    public boolean mute(boolean muted) {
+        if( socket == null || !socket.isConnected()) {
+            return false;
+        }
         out.println("clientupdate client_input_muted="+(muted?1:0));
+        return true;
 
     }
 
